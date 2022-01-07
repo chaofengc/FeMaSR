@@ -1,0 +1,253 @@
+# general settings
+# name: 0001_VQGAN_ImageNet_RRDBFuse_HQ_stage
+# name: 0004_VQGAN_ImageNet_RRDBFuse_LQ_stage
+# name: 0005_VQGAN_ImageNet_RRDBFuse_LQ_stage
+# name: 0006_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0007_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0008_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0009_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0010_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0011_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0012_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0013_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0014_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0015_VQGAN_ImageNet_RRDBFuse_LQ_stage
+# name: 0016_VQGAN_ImageNet_RRDBFuse_LQ_stage
+# name: 0017_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0018_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0019_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0020_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0021_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0023_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0027_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0028_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0029_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0030_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0031_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0032_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0033_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0034_VQGAN_ImageNet_RRDBFuse_LQ_stage
+# name: 0035_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0036_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0037_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0038_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0039_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0040_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0042_VQGAN_ImageNet_RRDBFuse_LQ_stage
+name: 0043_VQGAN_ImageNet_RRDBFuse_LQ_stage
+model_type: MultiScaleVQGANFuseModel
+scale: 4
+num_gpu: 4 # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: General_Image_Train
+    type: PairedImageDataset
+    # type: BSRGANTrainDataset 
+    dataroot_gt: ../datasets/HQ_sub_samename
+    dataroot_lq: ../datasets/LQ_sub_samename_X4
+    io_backend:
+      type: disk
+ 
+    gt_size: 256
+    use_resize_crop: true 
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 2
+    batch_size_per_gpu: 6 
+    dataset_enlarge_ratio: 1
+
+    prefetch_mode: ~
+
+  val:
+    name: General_Image_Valid
+    type: PairedImageDataset
+    dataroot_gt: ../datasets/test_datasets/div2k_valid/gt_mod16
+    dataroot_lq: ../datasets/test_datasets/div2k_valid/lrx4
+    # crop_eval_size: 384 
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: MultiScaleVQGAN
+  in_channel: 3
+  n_res_block: 2
+  n_res_channel: 64
+  beta: 0.25
+  gt_resolution: 256
+  latent_size: 16 
+  norm_type: 'gn'
+  act_type: 'gelu'
+  with_semantic: false 
+  with_attn: false 
+  scale_factor: 4
+  # content_encoder: 'rcan'
+  # content_encoder_path: /root/experiments/BasicSR/experiments/pretrained_models/models_ECCV2018RCAN//RCAN_BIX4.pt
+  content_encoder: 'rrdb'
+  content_encoder_path: ../compare_methods/Real-ESRGAN-master/experiments/pretrained_models/RealESRNet_x4plus.pth
+  # attn_scales: [16, 32, 64]
+  # attn_scales: [16]
+  # fusion_type: 'adain'
+  fusion_type: 'simspade'
+  fixed_disc: false
+  codebook_params: # has to order from low to high
+    - [16, 1024, 256]
+    # - [64, 512, 256]
+    # - [16, 1024, 256, 'l2'] 
+    # - [32, 512, 128, 'l2']
+    # - [64, 512, 128, 'l2']
+
+  # frozen_module_keywords: ['content_encoder', 'esrgan_model', 'quantize', 'decoder', 'after_quant_group', 'out_conv']
+  # frozen_module_keywords: ['quantize', 'decoder', 'after_quant_group', 'out_conv']
+  # frozen_module_keywords: ['quantize', 'post_quant_conv', 'decoder']
+  frozen_module_keywords: ['quantize']
+  # for HQ stage training
+  LQ_stage: true 
+  use_quantize: true
+  codebook_dist_func: cosine
+  # hq_path: /root/experiments/BasicSR/experiments/001_VQGAN_Attn_HQ_stage/models/net_g_90000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/805_LQ_stage_SFT_shortcut_GN_wo_gt/models/net_g_495000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/804_SFT_before_after_with_dec_enc_gn_good_monster/models/net_g_160000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/030_VQGAN_Upconcat_Attn_HQ_stage/models/net_g_140000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/210_VQGAN_Upconcat_SimpleSFT_HQ_stage/models/net_g_85000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/2000_3scale_VQGAN_BottleneckConcat_HQ_stage/models/net_g_95000.pth
+  # hq_path: /root/experiments/ckpt_bk/101_1_scale_HQ_stage_1024_codebook_largeDataset/models/net_g_110000.pth
+  # imagenet_pretrain_path: './experiments/pretrained_models/VQGAN_imagenet_f16_1024/vqgan_imagenet_f16_1024.ckpt'
+  strict_load: false 
+
+network_d:
+  type: UNetDiscriminatorSN 
+  num_in_ch: 3
+  # type: NLayerDiscriminator
+  # input_nc: 3
+  # ndf: 64
+  # n_layers: 3
+
+# path
+path:
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_1_scale_HQ_stage_1024_codebook_Newmodel/models/net_g_35000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_2_scale_HQ_stage_1024_codebook_Newmodel/models/net_g_35000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_3_scale_HQ_stage_1024_codebook_Newmodel/models/net_g_35000.pth 
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/101_3_scale_HQ_stage_sumfusion/models/net_g_10000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/101_3_scale_HQ_stage_upconcatfusion_archived_20210712_110459/models/net_g_70000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/102_2_scale_HQ_stage_bottleneck/models/net_g_80000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/805_LQ_stage_SFT_shortcut_GN_wo_gt/models/net_g_495000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/804_SFT_before_after_with_dec_enc_gn_good_monster/models/net_g_160000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/210_VQGAN_Upconcat_SimpleSFT_HQ_stage/models/net_g_85000.pth
+  # pretrain_model_g: ~
+  
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_1_scale_HQ_stage_1024_codebook_Newmodel/models/net_d_35000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_2_scale_HQ_stage_1024_codebook_Newmodel/models/net_d_35000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_3_scale_HQ_stage_1024_codebook_Newmodel/models/net_d_35000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/102_2_scale_HQ_stage_bottleneck/models/net_d_80000.pth
+  # pretrain_model_g: /root/experiments/ckpt_bk/101_1_scale_HQ_stage_1024_codebook_largeDataset/models/net_g_110000.pth
+  # pretrain_model_d: /root/experiments/ckpt_bk/101_1_scale_HQ_stage_1024_codebook_largeDataset/models/net_d_110000.pth
+  # pretrain_model_g: ./experiments/0009_VQGAN_MultiscaleNoSemantic_Attn_RRDBFuse_HQ_stage_archived_20211126_153725/models/net_g_latest.pth
+  # pretrain_model_d: ./experiments/0009_VQGAN_MultiscaleNoSemantic_Attn_RRDBFuse_HQ_stage_archived_20211126_153725/models/net_d_latest.pth
+  # pretrain_model_g: ./experiments/0003_VQGAN_ImageNet_RRDBFuse_HQ_stage/models/net_g_latest.pth
+  pretrain_model_d: ./experiments/0003_VQGAN_ImageNet_RRDBFuse_HQ_stage/models/net_d_latest.pth
+  pretrain_model_g: ./experiments/0029_VQGAN_ImageNet_RRDBFuse_LQ_stage/models/net_g_latest.pth
+  # pretrain_model_d: ./experiments/0029_VQGAN_ImageNet_RRDBFuse_LQ_stage/models/net_d_latest.pth
+  # pretrain_model_g: ./experiments/0005_VQGAN_ImageNet_RRDBFuse_LQ_stage/models/net_g_latest.pth
+  # pretrain_model_d: ./experiments/0005_VQGAN_ImageNet_RRDBFuse_LQ_stage/models/net_d_latest.pth
+  # pretrain_model_g: ./experiments/0006_VQGAN_ImageNet_RRDBFuse_LQ_stage/models/net_g_latest.pth
+  # pretrain_model_d: ./experiments/0006_VQGAN_ImageNet_RRDBFuse_LQ_stage/models/net_d_latest.pth
+  strict_load: false 
+  # resume_state: /root/experiments/BasicSR/experiments/001_2_scale_with_gan_LQ/training_states/90000.state
+  # resume_state: ~
+
+# training settings
+train:
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  optim_d:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    # milestones: [50000, 100000, 200000, 300000]
+    # gamma: 1
+    milestones: [50000, 100000, 150000, 200000, 250000, 300000, 350000]
+    gamma: 1
+
+  total_iter: 2000000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0 
+    reduction: mean
+  perceptual_opt:
+    type: LPIPSLoss
+    loss_weight: !!float 1.0 
+    # type: PerceptualLoss
+    # layer_weights:
+      # 'conv1_2': 0.
+      # 'conv2_2': 0.
+      # 'conv3_4': 0
+      # 'conv4_4': 1
+      # 'conv5_4': 0
+    # vgg_type: vgg19
+    # use_input_norm: true
+    # perceptual_weight: !!float 1.0
+    # style_weight: 1
+    # criterion: l1
+  gan_opt:
+    type: GANLoss
+    gan_type: hinge
+    # gan_type: vanilla 
+    real_label_val: 1.0
+    fake_label_val: 0.0
+    loss_weight: 0.1
+  codebook_opt:
+    loss_weight: 1.0
+
+  net_d_iters: 1
+  net_d_init_iters: !!float 0 
+  # net_d_init_iters: !!float 1e9 
+
+# validation settings·
+val:
+  val_freq: !!float 5e3 
+  save_img: true
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
+    lpips:
+      type: calculate_lpips
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 1e9
+  save_latest_freq: !!float 5e2
+  show_tf_imgs_freq: !!float 100
+  use_tb_logger: true
+  wandb:
+    # project: ESRGAN
+    # resume_id: ~
+
+# dist training settings
+# dist_params:
+  # backend: nccl
+  # port: 16500 #29500

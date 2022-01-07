@@ -1,0 +1,167 @@
+# general settings
+name: 804_SFT_before_after_with_dec_enc_gn_good_monster
+name: 805_SFT_before_after_with_dec_enc_bn_good_monster
+name: test_shortcut 
+# name: 101_3_scale_HQ_stage_sumfusion
+model_type: MultiScaleVQGANModelSFTShortcut
+scale: 1
+num_gpu: 2 # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: General_Image_Train
+    type: PairedImageDataset
+    dataroot_gt: /root/experiments/datasets/HQ_sub_samename
+    dataroot_lq: /root/experiments/datasets/HQ_sub_samename
+    io_backend:
+      type: disk
+ 
+    gt_size: 256
+    use_resize_crop: true 
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 2
+    batch_size_per_gpu: 8 
+    dataset_enlarge_ratio: 1
+
+    prefetch_mode: ~
+
+  val:
+    name: General_Image_Valid
+    type: PairedImageDataset
+    dataroot_gt: /root/experiments/datasets/FullImage/valid_GT
+    dataroot_lq: /root/experiments/datasets/FullImage/valid_GT
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: MultiScaleVQVAESFTShortcut
+  in_channel: 3
+  n_res_block: 2
+  n_res_channel: 64
+  beta: 0.25
+  gt_resolution: 256
+  norm_type: 'bn'
+  act_type: 'leakyrelu'
+  enc_quant_fusion_type: concat 
+  with_shortcut: true
+  codebook_params: # has to order from low to high
+    - [16, 1024, 256, 'l2'] 
+    - [32, 512, 128, 'l2']
+    - [64, 512, 128, 'l2']
+
+  # for HQ stage training
+  LQ_stage: false
+  fixed_disc: false
+  codebook_dist_func: 'l2' # only use l2 for HQ stage, otherwise, will not converge
+  hq_path: ~
+
+network_d:
+  # type: VGGStyleDiscriminator128
+  # num_in_ch: 3
+  # num_feat: 64
+  type: NLayerDiscriminator
+  input_nc: 3
+  ndf: 64
+  n_layers: 3
+
+
+# path
+path:
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_1_scale_HQ_stage_1024_codebook_Newmodel/models/net_g_35000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_2_scale_HQ_stage_1024_codebook_Newmodel/models/net_g_35000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_3_scale_HQ_stage_1024_codebook_Newmodel/models/net_g_35000.pth 
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/101_3_scale_HQ_stage_sumfusion/models/net_g_10000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/101_3_scale_HQ_stage_upconcatfusion_archived_20210712_110459/models/net_g_70000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/102_2_scale_HQ_stage_bottleneck/models/net_g_80000.pth
+  pretrain_model_g: ~
+  
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_1_scale_HQ_stage_1024_codebook_Newmodel/models/net_d_35000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_2_scale_HQ_stage_1024_codebook_Newmodel/models/net_d_35000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_3_scale_HQ_stage_1024_codebook_Newmodel/models/net_d_35000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/102_2_scale_HQ_stage_bottleneck/models/net_d_80000.pth
+  pretrain_model_d: ~  
+  strict_load: true 
+  # resume_state: /root/experiments/BasicSR/experiments/001_2_scale_with_gan_LQ/training_states/90000.state
+  # resume_state: ~
+
+# training settings
+train:
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  optim_d:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [50000, 100000, 200000, 300000]
+    gamma: 1
+
+  total_iter: 2000000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+  perceptual_opt:
+    type: LPIPSLoss
+    loss_weight: !!float 1.0
+  gan_opt:
+    type: GANLoss
+    gan_type: hinge
+    real_label_val: 1.0
+    fake_label_val: 0.0
+    loss_weight: 0.01
+  codebook_opt:
+    loss_weight: 1.0
+
+  net_d_iters: 1
+  net_d_init_iters: !!float 0 
+
+# validation settings·
+val:
+  val_freq: !!float 1e4
+  save_img: true
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
+    lpips:
+      type: calculate_lpips
+
+    
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  show_tf_imgs_freq: !!float 100
+  use_tb_logger: true
+  wandb:
+    # project: ESRGAN
+    # resume_id: ~
+
+# dist training settings
+# dist_params:
+  # backend: nccl
+  # port: 16500 #29500

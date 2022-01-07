@@ -1,0 +1,183 @@
+# general settings
+# name: 1200_LQ_stage_enc_supervise_resume102_wo_encGAN_resume
+name: 5001_LQ_stage_VQGAN_RRDBEnc_featloss
+model_type: MultiScaleVQGANModelFeatLoss
+scale: 1
+num_gpu: 2 # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: General_Image_Train
+    type: PairedImageDataset
+    dataroot_gt: /root/experiments/datasets/HQ_sub_samename
+    dataroot_lq: /root/experiments/datasets/LQ_sub_samename
+    io_backend:
+      type: disk
+ 
+    gt_size: 256
+    use_resize_crop: true 
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 2
+    batch_size_per_gpu: 4
+    dataset_enlarge_ratio: 1
+
+    prefetch_mode: ~
+
+  val:
+    name: General_Image_Valid
+    type: PairedImageDataset
+    dataroot_gt: /root/experiments/datasets/FullImage/valid_GT
+    dataroot_lq: /root/experiments/datasets/FullImage/valid_LQ
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: MultiScaleVQVAERRDBEnc
+  in_channel: 3
+  n_res_block: 2
+  n_res_channel: 64
+  beta: 0.25
+  gt_resolution: 256
+  norm_type: 'gn'
+  act_type: 'leakyrelu'
+  enc_quant_fusion_type: concat 
+  codebook_params: # has to order from low to high
+    - [16, 1024, 256, 'l2'] 
+    - [32, 512, 128, 'l2']
+    - [64, 512, 128, 'l2']
+
+  # for LQ stage training
+  LQ_stage: true
+  use_codebook_cls: true 
+  codebook_margin: 0.1
+  codebook_norm_feature: 1.0
+  hq_path: /root/experiments/BasicSR/experiments/804_SFT_before_after_with_dec_enc_gn_good_monster/models/net_g_160000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/102_2_scale_HQ_stage_bottleneck_80k_resume/models/net_g_300000.pth 
+  # hq_path: /root/experiments/BasicSR/experiments/102_3_scale_HQ_stage_bottleneck/models/net_g_250000.pth 
+  # hq_path: /root/experiments/BasicSR/experiments/101_3_scale_HQ_stage_upconcatfusion/models/net_g_60000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/101_3_scale_HQ_stage_1024_codebook_largeDataset/models/net_g_85000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/101_1_scale_HQ_stage_1024_codebook_largeDataset/models/net_g_85000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/001_2_scale_with_gan_HQ/models/net_g_100000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/001_3_scale_with_gan_HQ/models/net_g_100000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/008_1_scale_HQ_stage_1024_codebook/models/net_g_20000.pth
+  # hq_path: /root/experiments/BasicSR/experiments/102_3_scale_HQ_stage_bottleneck/models/net_g_220000.pth
+  strict_load: false
+  # frozen_module_keywords: ['quantize']
+  frozen_module_keywords: ['before_quant_group', 'quantize', 'decoder', 'after_quant_group', 'out_conv']
+
+network_d:
+  type: UNetDiscriminatorSN
+  num_in_ch: 3
+  # input_nc: 3
+  # ndf: 64
+  # n_layers: 3
+
+
+# path
+path:
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_1_scale_with_gan_LQ/models/net_g_90000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_2_scale_with_gan_LQ/models/net_g_90000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_3_scale_with_gan_LQ/models/net_g_55000.pth 
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/005_LQ_stage_SFT_shortcut_GN_wo_gt_gan_unfix/models/net_g_60000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/805_LQ_stage_SFT_shortcut_GN_wo_gt/models/net_g_495000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/102_3_scale_LQ_stage_bottleneck/models/net_g_320000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/1300_LQ_stage_pretrain_enc_resume/models/net_g_35000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/1201_LQ_stage_enc_supervise_resume102_encGAN/models/net_g_40000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/1200_LQ_stage_enc_supervise_resume102_wo_encGAN/models/net_g_60000.pth
+  # pretrain_model_g: ~
+
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/102_3_scale_HQ_stage_bottleneck/models/net_d_250000.pth 
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_2_scale_with_gan_LQ/models/net_d_90000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/001_3_scale_with_gan_LQ/models/net_d_55000.pth
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/005_LQ_stage_SFT_shortcut_GN_wo_gt_gan_unfix/models/net_d_60000.pth
+  # pretrain_model_g: /root/experiments/BasicSR/experiments/001_3_scale_with_gan_LQ/models/net_g_55000.pth 
+  # pretrain_model_d: /root/experiments/BasicSR/experiments/1201_LQ_stage_enc_supervise_resume102_encGAN/models/net_d_40000.pth
+  pretrain_model_d: ~
+  pretrain_model_bottleneck_d: ~
+  strict_load: false
+  
+  # resume_state: /root/experiments/BasicSR/experiments/001_2_scale_with_gan_LQ/training_states/90000.state
+  # resume_state: ~
+
+# training settings
+train:
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  optim_d:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [50000, 100000, 200000, 300000]
+    gamma: 1
+
+  total_iter: 2000000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+  perceptual_opt:
+    type: LPIPSLoss
+    loss_weight: !!float 1.0
+  gan_opt:
+    type: GANLoss
+    gan_type: vanilla
+    real_label_val: 1.0
+    fake_label_val: 0.0
+    loss_weight: 0.0
+  codebook_opt:
+    loss_weight: 0.0 
+  cls_opt: # only for LQ stage!!!
+    loss_weight: !!float 0.0
+
+  net_d_iters: 1
+  net_d_init_iters: 0
+  net_bottleneck_d_init_iters: 0
+
+# validation settings·
+val:
+  val_freq: !!float 5e3 
+  save_img: true
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
+    lpips:
+      type: calculate_lpips
+    
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  show_tf_imgs_freq: !!float 100
+  use_tb_logger: true
+  wandb:
+    # project: ESRGAN
+    # resume_id: ~
+
+# dist training settings
+# dist_params:
+  # backend: nccl
+  # port: 16500 #29500
