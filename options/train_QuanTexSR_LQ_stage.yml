@@ -3,6 +3,7 @@ name: 0001_QSR_Semantic_RRDB_LQ_stage
 name: 0002_QSR_Semantic_RRDB_LQ_stage
 name: 0003_QSR_Semantic_RRDB_LQ_stage
 name: 0006_QSR_Semantic_RRDB_LQ_stage
+name: 0007_QSR_Semantic_RRDB_LQ_stage
 # name: debug_0001_QSR_Semantic_RRDB_LQ_stage
 model_type: QuanTexSRGANModel
 scale: 4
@@ -52,7 +53,7 @@ network_g:
   gt_resolution: 256
   latent_size: 32 
   norm_type: 'gn'
-  act_type: 'gelu'
+  act_type: 'silu'
   with_semantic: false 
   with_attn: false 
   # content_encoder: 'rcan'
@@ -100,10 +101,11 @@ network_d:
 
 # path
 path:
-  pretrain_network_g: ./experiments/0018_VQGAN_Multiscale_WSemantic_Attn_RRDBFuse_HQ_stage/models/net_g_latest.pth
-  pretrain_network_d: ./experiments/0018_VQGAN_Multiscale_WSemantic_Attn_RRDBFuse_HQ_stage/models/net_d_latest.pth
+  # pretrain_network_g: ./experiments/0018_VQGAN_Multiscale_WSemantic_Attn_RRDBFuse_HQ_stage/models/net_g_latest.pth
+  # pretrain_network_d: ./experiments/0018_VQGAN_Multiscale_WSemantic_Attn_RRDBFuse_HQ_stage/models/net_d_latest.pth
+  pretrain_network_g: ./experiments/0006_QSR_Semantic_RRDB_LQ_stage/models/net_g_best_.pth
+  pretrain_network_d: ./experiments/0006_QSR_Semantic_RRDB_LQ_stage/models/net_d_best_.pth
   strict_load: false 
-  # resume_state: /root/experiments/BasicSR/experiments/001_2_scale_with_gan_LQ/training_states/90000.state
   # resume_state: ~
 
 # training settings

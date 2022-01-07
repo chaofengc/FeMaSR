@@ -76,14 +76,16 @@ class QuanTexSRGANModel(BaseModel):
                             break
         self.has_gt_model = False # to test dataset without GT
         # load pretrained models
-        load_path = self.opt['path'].get('pretrain_model_g', None)
+        load_path = self.opt['path'].get('pretrain_network_g', None)
         resume_module_keywords = self.opt['network_g'].get('resume_module_keywords_g', None)
+        
+        logger = get_root_logger()
         if load_path is not None:
             if resume_module_keywords is None:
+                logger.info(f'Loading net_g from {load_path}')
                 self.load_network(self.net_g, load_path, self.opt['path']['strict_load'])
             else:
                 # only reload weights in resume module keywords
-                logger = get_root_logger()
                 logger.warning(f'Only reload weights in {resume_module_keywords} from {load_path}')
                 net = self.get_bare_model(self.net_g)
                 w = torch.load(load_path)['params']
@@ -102,6 +104,7 @@ class QuanTexSRGANModel(BaseModel):
         self.net_d_best = copy.deepcopy(self.net_d)
 
     def init_training_settings(self):
+        logger = get_root_logger()
         train_opt = self.opt['train']
         self.net_g.train()
         if hasattr(self, 'net_hq'):
@@ -112,9 +115,10 @@ class QuanTexSRGANModel(BaseModel):
         self.net_d = self.model_to_device(self.net_d)
         # self.print_network(self.net_d)
         # load pretrained d models
-        load_path = self.opt['path'].get('pretrain_model_d', None)
+        load_path = self.opt['path'].get('pretrain_network_d', None)
         # print(load_path)
         if load_path is not None:
+            logger.info(f'Loading net_d from {load_path}')
             self.load_network(self.net_d, load_path, self.opt['path'].get('strict_load_d', True))
             
         self.net_d.train()

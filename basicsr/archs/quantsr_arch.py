@@ -256,12 +256,12 @@ class QuanTexSRNet(nn.Module):
                  codebook_dist_func='l2',
                  codebook_params=None,
                  gt_resolution=256,
-                 LQ_stage=False,
+                 LQ_stage=True,
                  norm_type='gn',
-                 act_type='gelu',
+                 act_type='silu',
                  enc_quant_fusion_type='concat',
                  content_encoder='rrdb',
-                 content_encoder_path='',
+                 content_encoder_path=None,
                  use_quantize=True,
                  scale_factor=4,
                  with_attn=False,
@@ -339,14 +339,15 @@ class QuanTexSRNet(nn.Module):
         
         if LQ_stage:
             self.content_model = RRDBNet(3, 3, scale=scale_factor) 
-            self.content_model.load_state_dict(torch.load(content_encoder_path)['params_ema'])
+            if content_encoder_path is not None:
+                self.content_model.load_state_dict(torch.load(content_encoder_path)['params_ema'])
 
         self.use_semantic_loss = use_semantic_loss
         if use_semantic_loss: 
             self.semantic_cluster = MultiScaleVGGCluster() 
             self.semantic_cluster.load_state_dict(torch.load(semantic_cluster_path)['params'])
 
-    def encode_and_decode(self, input, gt_img, gt_indices=None):
+    def encode_and_decode(self, input, gt_img=None, gt_indices=None):
         pre_input = input
 
         codebook_loss_list = []
@@ -410,6 +411,13 @@ class QuanTexSRNet(nn.Module):
         out_imgs = [pre_input, out_img.clone().detach(), out_img]
 
         return out_imgs, sum(codebook_loss_list), sum(cls_loss_list), indices_list 
+
+    def test(self, input):
+
+        input = self.content_model(input)
+        dec, codebook_loss, cls_loss, indices = self.encode_and_decode(input) 
+
+        return dec[-1]
     
     def forward(self, input, gt_indices=None, gt_img=None):
         # if input is LQ, upsample it to GT size first 

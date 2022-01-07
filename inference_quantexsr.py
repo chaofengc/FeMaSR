@@ -1,52 +1,68 @@
 import argparse
 import cv2
 import glob
-import numpy as np
 import os
+from tqdm import tqdm
 import torch
+import torch.nn.functional as F
 
-from basicsr.archs.rrdbnet_arch import RRDBNet
+from basicsr.utils import img2tensor, tensor2img, imwrite 
+from basicsr.data.transforms import mod_crop
+from basicsr.archs.quantsr_arch import QuanTexSRNet
+
+
+def mod_pad(img_tensor, mod_scale=16):
+    _, _, h, w = img_tensor.shape
+    mod_pad_h, mod_pad_w = 0, 0
+    if (h % mod_scale != 0):
+        mod_pad_h = (mod_scale - h % mod_scale)
+    if (w % mod_scale != 0):
+        mod_pad_w = (mod_scale - w % mod_scale)
+    return F.pad(img_tensor, (0, mod_pad_w, 0, mod_pad_h), 'reflect')
 
 
 def main():
+    """Inference demo for QuanTexSR 
+    """
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--model_path',
-        type=str,
-        default=  # noqa: E251
-        'experiments/pretrained_models/ESRGAN/ESRGAN_SRx4_DF2KOST_official-ff704c30.pth'  # noqa: E501
-    )
-    parser.add_argument('--input', type=str, default='datasets/Set14/LRbicx4', help='input test image folder')
-    parser.add_argument('--output', type=str, default='results/ESRGAN', help='output folder')
+    parser.add_argument('-i', '--input', type=str, default='inputs', help='Input image or folder')
+    parser.add_argument('-w', '--weight', type=str, default='', help='path for model weights')
+    parser.add_argument('-o', '--output', type=str, default='results', help='Output folder')
+    parser.add_argument('-s', '--outscale', type=float, default=4, help='The final upsampling scale of the image')
+    parser.add_argument('--suffix', type=str, default='', help='Suffix of the restored image')
+    parser.add_argument('--mod_scale', type=int, default=16, help='Pre padding size to be divisible by 16')
     args = parser.parse_args()
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # set up model
-    model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32)
-    model.load_state_dict(torch.load(args.model_path)['params'], strict=True)
-    model.eval()
-    model = model.to(device)
-
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') 
+    
+    # set up the model
+    qsr_model = QuanTexSRNet(codebook_params=[[32, 1024, 512]], LQ_stage=True).to(device)
+    qsr_model.load_state_dict(torch.load(args.weight)['params'])
+    qsr_model.eval()
+    
     os.makedirs(args.output, exist_ok=True)
-    for idx, path in enumerate(sorted(glob.glob(os.path.join(args.input, '*')))):
-        imgname = os.path.splitext(os.path.basename(path))[0]
-        print('Testing', idx, imgname)
-        # read image
-        img = cv2.imread(path, cv2.IMREAD_COLOR).astype(np.float32) / 255.
-        img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
-        img = img.unsqueeze(0).to(device)
-        # inference
-        try:
-            with torch.no_grad():
-                output = model(img)
-        except Exception as error:
-            print('Error', error, imgname)
-        else:
-            # save image
-            output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
-            output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
-            output = (output * 255.0).round().astype(np.uint8)
-            cv2.imwrite(os.path.join(args.output, f'{imgname}_ESRGAN.png'), output)
+    if os.path.isfile(args.input):
+        paths = [args.input]
+    else:
+        paths = sorted(glob.glob(os.path.join(args.input, '*')))
+
+    pbar = tqdm(total=len(paths), unit='image')
+    for idx, path in enumerate(paths):
+        img_name = os.path.basename(path)
+        pbar.set_description(f'Test {img_name}')
+
+        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        img_tensor = img2tensor(img).to(device) / 255.
+        img_tensor = mod_pad(img_tensor.unsqueeze(0), args.mod_scale)
+
+        output = qsr_model.test(img_tensor)
+        output_img = tensor2img(output)
+
+        save_path = os.path.join(args.output, f'{img_name}')
+        imwrite(output_img, save_path)
+        pbar.update(1)
+        break
+    pbar.close()
 
 
 if __name__ == '__main__':
