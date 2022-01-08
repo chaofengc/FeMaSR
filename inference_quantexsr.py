@@ -61,7 +61,6 @@ def main():
         save_path = os.path.join(args.output, f'{img_name}')
         imwrite(output_img, save_path)
         pbar.update(1)
-        break
     pbar.close()
 
 

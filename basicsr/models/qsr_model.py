@@ -1,26 +1,27 @@
-import torch
 from collections import OrderedDict
 from os import path as osp
 from tqdm import tqdm
 
+import torch
+import torchvision.utils as tvu
+
 from basicsr.archs import build_network
+from basicsr.archs.lpips_arch import LPIPS
 from basicsr.losses import build_loss
 from basicsr.metrics import calculate_metric
-from basicsr.utils import get_root_logger, imwrite, tensor2img
+from basicsr.utils import get_root_logger, imwrite, tensor2img, img2tensor
 from basicsr.utils.registry import MODEL_REGISTRY
 from .base_model import BaseModel
-from .. import lpips
 import copy
 
 
 def calculate_lpips(img1, img2, loss_fn):
-    img1 = lpips.im2tensor(img1) # RGB image from [-1,1]
-    img2 = lpips.im2tensor(img2)
-    img1 = img1.cuda()
-    img2 = img2.cuda()
+
+    img1_tensor = img2tensor(img1).cuda().unsqueeze(0) / 255. * 2 - 1
+    img2_tensor = img2tensor(img2).cuda().unsqueeze(0) / 255. * 2 - 1
 
     # Compute distance
-    lpips_score = loss_fn.forward(img1,img2)
+    lpips_score = loss_fn.forward(img1_tensor,img2_tensor)
     return lpips_score.item()
 
 
@@ -34,7 +35,8 @@ class QuanTexSRGANModel(BaseModel):
         self.net_g = self.model_to_device(self.net_g)
         # self.print_network(self.net_g)
 
-        self.lpips_fn = lpips.LPIPS(net='alex',version='0.1')
+        self.lpips_fn = LPIPS(net='alex',version='0.1', 
+                pretrained_model_path='./experiments/pretrained_models/lpips/weights/v0.1/alex.pth')
         self.lpips_fn = self.model_to_device(self.lpips_fn)
 
         self.has_gt_model = False
@@ -205,39 +207,23 @@ class QuanTexSRGANModel(BaseModel):
         l_g_total = 0
         loss_dict = OrderedDict()
 
-        # ========================= Content loss ==========================
-        # pixel loss
-        #  if self.cri_pix and self.LQ_stage:
-            #  l_pix = self.cri_pix(self.output_l1, self.gt)
-            #  l_g_total += l_pix
-            #  loss_dict['l_pix_rrdb'] = l_pix
-
-        # ========================= Texture loss ==========================
-        # pixel loss
-        #  if self.cri_pix:
-            #  l_pix = self.cri_pix(self.output_vqgan, self.gt)
-            #  l_g_total += l_pix
-            #  loss_dict['l_pix_vqgan'] = l_pix
-        # perceptual loss
-        #  if self.cri_perceptual:
-            #  l_percep, l_style = self.cri_perceptual(self.output_vqgan, self.gt)
-            #  if l_percep is not None:
-                #  l_g_total += l_percep.mean()
-                #  loss_dict['l_percep_vqgan'] = l_percep.mean()
-            #  if l_style is not None:
-                #  l_g_total += l_style
-                #  loss_dict['l_style'] = l_style
-
-        # ========================= Fusion loss ==========================
+        # ===================================================
+        # pixel loss to finetune RRDB network
+        if self.cri_pix and self.LQ_stage:
+            l_pix = self.cri_pix(self.output_l1, self.gt)
+            l_g_total += l_pix
+            loss_dict['l_pix_rrdb'] = l_pix
+        
+        # ===================================================
         # codebook loss
-        if train_opt.get('codebook_opt'):
+        if train_opt.get('codebook_opt', None):
             l_ae *= train_opt['codebook_opt']['loss_weight'] 
             l_g_total += l_ae.mean()
             loss_dict['l_ae'] = l_ae.mean()
 
         # cls loss, only for LQ stage!
-        if train_opt.get('cls_opt'):
-            l_cls *= train_opt['cls_opt']['loss_weight'] 
+        if train_opt.get('semantic_opt', None):
+            l_cls *= train_opt['semantic_opt']['loss_weight'] 
             l_cls = l_cls.mean()
             l_g_total += l_cls
             loss_dict['l_cls'] = l_cls
@@ -269,7 +255,7 @@ class QuanTexSRGANModel(BaseModel):
         self.optimizer_g.step()
 
         # optimize net_d
-        self.fixed_disc = self.opt['network_g']['fixed_disc']
+        self.fixed_disc = self.opt['train'].get('fixed_disc', False)
         if not self.fixed_disc and self.use_dis and current_iter > train_opt['net_d_init_iters']:
             for p in self.net_d.parameters():
                 p.requires_grad = True
@@ -470,7 +456,7 @@ class QuanTexSRGANModel(BaseModel):
     def vis_single_code(self, up_factor=2):
         net_g = self.get_bare_model(self.net_g)
         org_use_sloss = net_g.use_semantic_loss 
-        net_g.module.use_semantic_loss = False
+        net_g.use_semantic_loss = False
         with torch.no_grad():
             code_idx = torch.arange(1024)
             input_res = 16 * 16 // self.latent_size * up_factor
@@ -479,7 +465,7 @@ class QuanTexSRGANModel(BaseModel):
             outputs, _, _, _ = self.net_g(input_tensor, gt_indices=[code_idx.cuda()])
             output_img = outputs[-1]
             output_img = tvu.make_grid(output_img, nrow=32)
-        net_g.module.use_semantic_loss = org_use_sloss 
+        net_g.use_semantic_loss = org_use_sloss 
         return output_img.unsqueeze(0)
 
     def get_current_visuals(self):

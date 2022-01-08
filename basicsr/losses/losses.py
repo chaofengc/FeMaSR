@@ -11,6 +11,7 @@ from .loss_util import weighted_loss
 
 _reduction_modes = ['none', 'mean', 'sum']
 
+LPIPS_VGG_WEIGHT_PATH='./experiments/pretrained_models/lpips/weights/v0.1/vgg.pth'
 
 @weighted_loss
 def l1_loss(pred, target):
@@ -34,7 +35,7 @@ class LPIPSLoss(nn.Module):
 
     def __init__(self, loss_weight = 1.0):
         super(LPIPSLoss, self).__init__()
-        self.model = LPIPS() 
+        self.model = LPIPS(net='vgg', pretrained_model_path=LPIPS_VGG_WEIGHT_PATH)
         self.model.eval()
         self.loss_weight = loss_weight
 

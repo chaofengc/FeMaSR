@@ -1,15 +1,8 @@
 # general settings
-name: 0001_QSR_Semantic_RRDB_LQ_stage
-name: 0002_QSR_Semantic_RRDB_LQ_stage
-name: 0003_QSR_Semantic_RRDB_LQ_stage
-name: 0006_QSR_Semantic_RRDB_LQ_stage
-name: 0007_QSR_Semantic_RRDB_LQ_stage
-name: 0008_QSR_Semantic_RRDB_LQ_stage
-name: 0009_QSR_Semantic_RRDB_LQ_stage
-# name: debug_0001_QSR_Semantic_RRDB_LQ_stage
+name: debug0100_QSR_Semantic_RRDB_HQ_stage
 model_type: QuanTexSRGANModel
 scale: 4
-num_gpu: 2 # set num_gpu: 0 for cpu mode
+num_gpu: 1 # set num_gpu: 0 for cpu mode
 manual_seed: 0
 
 # dataset and data loader settings
@@ -17,9 +10,8 @@ datasets:
   train:
     name: General_Image_Train
     type: PairedImageDataset
-    # type: BSRGANTrainDataset 
     dataroot_gt: ../datasets/HQ_sub_samename
-    dataroot_lq: ../datasets/LQ_sub_samename_X4
+    dataroot_lq: ../datasets/HQ_sub_samename
     io_backend:
       type: disk
  
@@ -31,7 +23,7 @@ datasets:
     # data loader
     use_shuffle: true
     num_worker_per_gpu: 2
-    batch_size_per_gpu: 8
+    batch_size_per_gpu: 16 
     dataset_enlarge_ratio: 1
 
     prefetch_mode: ~
@@ -39,9 +31,8 @@ datasets:
   val:
     name: General_Image_Valid
     type: PairedImageDataset
-    dataroot_gt: ../datasets/test_datasets/div2k_valid/gt_mod16
-    dataroot_lq: ../datasets/test_datasets/div2k_valid/lrx4
-    # crop_eval_size: 384 
+    dataroot_gt: ../datasets/FullImage/valid_GT
+    dataroot_lq: ../datasets/FullImage/valid_GT
     io_backend:
       type: disk
 
@@ -51,28 +42,24 @@ network_g:
   gt_resolution: 256
   norm_type: 'gn'
   act_type: 'silu'
-  scale_factor: 4
-  content_encoder_path: ../compare_methods/Real-ESRGAN-master/experiments/pretrained_models/RealESRNet_x4plus.pth
+  use_semantic_loss: true
+  latent_size: 32
+  semantic_cluster_path: './experiments/0008_VGG_Semantic_Codebook_cluster/models/net_g_latest.pth'
   codebook_params: # has to order from low to high
     - [32, 1024, 512]
 
-  # frozen_module_keywords: ['content_encoder', 'esrgan_model', 'quantize', 'decoder', 'after_quant_group', 'out_conv']
-  # frozen_module_keywords: ['quantize', 'decoder', 'after_quant_group', 'out_conv']
-  frozen_module_keywords: ['quantize']
-  # frozen_module_keywords: ['esrgan_model', 'quantize']
   # for HQ stage training
-  LQ_stage: true
-
+  LQ_stage: false 
+  use_quantize: true
+  
 network_d:
   type: UNetDiscriminatorSN 
   num_in_ch: 3
 
 # path
 path:
-  pretrain_network_g: ./experiments/0018_VQGAN_Multiscale_WSemantic_Attn_RRDBFuse_HQ_stage/models/net_g_latest.pth
-  pretrain_network_d: ./experiments/0018_VQGAN_Multiscale_WSemantic_Attn_RRDBFuse_HQ_stage/models/net_d_latest.pth
-  # pretrain_network_g: ./experiments/0006_QSR_Semantic_RRDB_LQ_stage/models/net_g_best_.pth
-  # pretrain_network_d: ./experiments/0006_QSR_Semantic_RRDB_LQ_stage/models/net_d_best_.pth
+  # pretrain_network_g: ~
+  # pretrain_network_d: ~
   strict_load: false 
   # resume_state: ~
 
@@ -91,10 +78,8 @@ train:
 
   scheduler:
     type: MultiStepLR
-    # milestones: [50000, 100000, 200000, 300000]
-    # gamma: 1
     milestones: [50000, 100000, 150000, 200000, 250000, 300000, 350000]
-    gamma: 1 
+    gamma: 1
 
   total_iter: 2000000
   warmup_iter: -1  # no warm up
@@ -115,18 +100,17 @@ train:
     loss_weight: 0.1
   codebook_opt:
     loss_weight: 1.0
-    # loss_weight: 0.0
+  semantic_opt:
+    loss_weight: 0.1 
 
   net_d_iters: 1
-  # net_d_init_iters: !!float 0 
-  net_d_init_iters: !!float 1e4 
+  net_d_init_iters: !!float 0 
 
 # validation settings·
 val:
-  val_freq: !!float 5e3
+  val_freq: !!float 5e3 
   save_img: true
 
-  key_metric: lpips
   metrics:
     psnr: # metric name, can be arbitrary
       type: calculate_psnr
@@ -138,17 +122,15 @@ val:
       test_y_channel: true
     lpips:
       type: calculate_lpips
-      better: lower
 
 # logging settings
 logger:
   print_freq: 100
   save_checkpoint_freq: !!float 1e9
-  save_latest_freq: !!float 5e3
-  show_tf_imgs_freq: !!float 1e3
+  save_latest_freq: !!float 5e2
+  show_tf_imgs_freq: !!float 1e2 
   use_tb_logger: true
-
-wandb:
+  wandb:
     # project: ESRGAN
     # resume_id: ~
 
