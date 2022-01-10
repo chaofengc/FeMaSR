@@ -137,10 +137,10 @@ if __name__ == '__main__':
     else:
         ext_modules = []
 
-    write_version_py()
+    #  write_version_py()
     setup(
         name='basicsr',
-        version=get_version(),
+        #  version=get_version(),
         description='Open Source Image and Video Super-Resolution Toolbox',
         long_description=readme(),
         long_description_content_type='text/markdown',
