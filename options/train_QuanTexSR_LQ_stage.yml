@@ -6,6 +6,7 @@ name: 0006_QSR_Semantic_RRDB_LQ_stage
 name: 0007_QSR_Semantic_RRDB_LQ_stage
 name: 0008_QSR_Semantic_RRDB_LQ_stage
 name: 0009_QSR_Semantic_RRDB_LQ_stage
+name: 0010_QSR_Semantic_RRDB_LQ_stage
 # name: debug_0001_QSR_Semantic_RRDB_LQ_stage
 model_type: QuanTexSRGANModel
 scale: 4
@@ -105,8 +106,22 @@ train:
     loss_weight: 1.0 
     reduction: mean
   perceptual_opt:
-    type: LPIPSLoss
-    loss_weight: !!float 1.0 
+    # type: LPIPSLoss
+    # loss_weight: !!float 1.0 
+    type: PerceptualLoss
+    layer_weights:
+      # before relu
+      'conv1_2': 0.1
+      'conv2_2': 0.1
+      'conv3_4': 1
+      'conv4_4': 1
+      'conv5_4': 1
+    vgg_type: vgg19
+    use_input_norm: true
+    perceptual_weight: !!float 1.0
+    style_weight: !!float 1e2
+    range_norm: false
+    criterion: l1
   gan_opt:
     type: GANLoss
     gan_type: hinge

@@ -76,6 +76,7 @@ class QuanTexSRGANModel(BaseModel):
                             for p in module.parameters():
                                 p.requires_grad = False
                             break
+
         self.has_gt_model = False # to test dataset without GT
         # load pretrained models
         load_path = self.opt['path'].get('pretrain_network_g', None)
@@ -196,23 +197,21 @@ class QuanTexSRGANModel(BaseModel):
             else:
                 outputs, l_ae, l_cls, _ = self.net_g(self.lq, gt_img=self.gt) 
                 self.output_l1 = outputs[0]
-                self.output_vqgan = outputs[1]
                 self.output = outputs[-1]
         else:
             outputs, l_ae, l_cls, _ = self.net_g(self.lq) 
             self.output = outputs[-1]
             self.output_l1 = outputs[0]
-            self.output_vqgan = outputs[1]
 
         l_g_total = 0
         loss_dict = OrderedDict()
 
         # ===================================================
         # pixel loss to finetune RRDB network
-        if self.cri_pix and self.LQ_stage:
-            l_pix = self.cri_pix(self.output_l1, self.gt)
-            l_g_total += l_pix
-            loss_dict['l_pix_rrdb'] = l_pix
+        #  if self.cri_pix and self.LQ_stage:
+            #  l_pix = self.cri_pix(self.output_l1, self.gt)
+            #  l_g_total += l_pix
+            #  loss_dict['l_pix_rrdb'] = l_pix
         
         # ===================================================
         # codebook loss
@@ -221,7 +220,7 @@ class QuanTexSRGANModel(BaseModel):
             l_g_total += l_ae.mean()
             loss_dict['l_ae'] = l_ae.mean()
 
-        # cls loss, only for LQ stage!
+        # semantic cluster loss, only for LQ stage!
         if train_opt.get('semantic_opt', None):
             l_cls *= train_opt['semantic_opt']['loss_weight'] 
             l_cls = l_cls.mean()
@@ -475,7 +474,6 @@ class QuanTexSRGANModel(BaseModel):
         out_dict['result'] = self.output.detach().cpu()[:vis_samples]
         if self.LQ_stage:
             out_dict['result_l1'] = self.output_l1.detach().cpu()[:vis_samples]
-        out_dict['result_vqgan'] = self.output_vqgan.detach().cpu()[:vis_samples]
         if not self.LQ_stage:
             out_dict['codebook'] = self.vis_single_code()
         if hasattr(self, 'gt_rec'):

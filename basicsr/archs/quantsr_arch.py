@@ -344,7 +344,7 @@ class QuanTexSRNet(nn.Module):
                 
         out_img = self.out_conv(x)
 
-        out_imgs = [pre_input, out_img.clone().detach(), out_img]
+        out_imgs = [pre_input, out_img]
 
         return out_imgs, sum(codebook_loss_list), sum(cls_loss_list), indices_list 
 
