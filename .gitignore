@@ -2,7 +2,7 @@
 datasets/*
 experiments*
 experiments/*
-results/*
+# results/*
 tb_logger*/*
 wandb/*
 tmp/*

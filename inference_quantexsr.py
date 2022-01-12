@@ -55,7 +55,12 @@ def main():
         img_tensor = img2tensor(img).to(device) / 255.
         img_tensor = mod_pad(img_tensor.unsqueeze(0), args.mod_scale)
 
-        output = qsr_model.test(img_tensor)
+        max_size = 600 * 600
+        h, w = img_tensor.shape[2:]
+        if h * w < max_size: 
+            output = qsr_model.test(img_tensor)
+        else:
+            output = qsr_model.test_tile(img_tensor)
         output_img = tensor2img(output)
 
         save_path = os.path.join(args.output, f'{img_name}')

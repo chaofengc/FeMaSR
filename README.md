@@ -2,6 +2,19 @@
 
 This is the official PyTorch codes for the paper "Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior"
 
+Here are some example results on test images from [BSRGAN](https://github.com/cszn/BSRGAN) and [RealESRGAN](https://github.com/xinntao/Real-ESRGAN).
+
+---
+
+**Left**: [real images](./testset) **|** **Right**: [super-resolved images with scale factor 4](./results)
+
+<img src="testset/butterfly.png" width="390px"/> <img src="results/butterfly.png" width="390px"/>
+<img src="testset/0003.jpg" width="390px"/> <img src="results/0003.jpg" width="390px"/>
+<img src="testset/00003.png" width="390px"/> <img src="results/00003.png" width="390px"/>
+<img src="testset/Lincoln.png" width="390px"/> <img src="results/Lincoln.png" width="390px"/>
+<img src="testset/0014.jpg" width="390px"/> <img src="results/0014.jpg" width="390px"/>
+
+
 ## Dependencies and Installation
 
 - Ubuntu >= 18.04
