@@ -1,6 +1,10 @@
 # QuanTexSR
 
-This is the official PyTorch codes for the paper "Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior"
+This is the official PyTorch codes for the paper  
+[Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior](https://arxiv.org/abs/)  
+[Chaofeng Chen\*](https://chaofengc.github.io), [Xinyu Shi\*](https://github.com/Xinyu-Shi), [Yipeng Qin](http://yipengqin.github.io/), [Xiaoming Li](https://csxmli2016.github.io/), [Xiaoguang Han](https://mypage.cuhk.edu.cn/academics/hanxiaoguang/), [Tao Yang](https://github.com/yangxy), [Shihui Guo](http://guoshihui.net/) (\* indicates equal contribution)
+
+![framework_img](framework_overview.png)
 
 Here are some example results on test images from [BSRGAN](https://github.com/cszn/BSRGAN) and [RealESRGAN](https://github.com/xinntao/Real-ESRGAN).
 
