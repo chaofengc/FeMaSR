@@ -2,7 +2,8 @@
 
 This is the official PyTorch codes for the paper  
 [Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior](https://arxiv.org/abs/)  
-[Chaofeng Chen\*](https://chaofengc.github.io), [Xinyu Shi\*](https://github.com/Xinyu-Shi), [Yipeng Qin](http://yipengqin.github.io/), [Xiaoming Li](https://csxmli2016.github.io/), [Xiaoguang Han](https://mypage.cuhk.edu.cn/academics/hanxiaoguang/), [Tao Yang](https://github.com/yangxy), [Shihui Guo](http://guoshihui.net/) (\* indicates equal contribution)
+[Chaofeng Chen\*](https://chaofengc.github.io), [Xinyu Shi\*](https://github.com/Xinyu-Shi), [Yipeng Qin](http://yipengqin.github.io/), [Xiaoming Li](https://csxmli2016.github.io/), [Xiaoguang Han](https://mypage.cuhk.edu.cn/academics/hanxiaoguang/), [Tao Yang](https://github.com/yangxy), [Shihui Guo](http://guoshihui.net/)   
+(\* indicates equal contribution)
 
 ![framework_img](framework_overview.png)
 
@@ -92,6 +93,20 @@ python basicsr/train.py -opt options/train_QuanTexSR_semantic_cluster_stage.yml
 ```
 python basicsr/train.py -opt options/train_QuanTexSR_HQ_pretrain_stage.yml
 ```
+
+## Citation
+```
+@inproceedings{ChenQuanTexSR,
+    author = {Chen, Chaofeng and Shi, Xinyu and Qin, Yipeng and Li, Xiaoming and Han, Xiaoguang and Yang, Tao and Guo, Shihui},
+    title = {Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior},
+    booktitle = {arxiv}
+    year = {2021}
+}
+```
+
+## License
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 
 ## Acknowledgement
 
