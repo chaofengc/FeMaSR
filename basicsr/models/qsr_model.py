@@ -17,8 +17,8 @@ import copy
 
 def calculate_lpips(img1, img2, loss_fn):
 
-    img1_tensor = img2tensor(img1).cuda().unsqueeze(0) / 255. * 2 - 1
-    img2_tensor = img2tensor(img2).cuda().unsqueeze(0) / 255. * 2 - 1
+    img1_tensor = img2tensor(img1).cuda().unsqueeze(0) / 255. 
+    img2_tensor = img2tensor(img2).cuda().unsqueeze(0) / 255.
 
     # Compute distance
     lpips_score = loss_fn.forward(img1_tensor,img2_tensor)
@@ -39,35 +39,10 @@ class QuanTexSRGANModel(BaseModel):
                 pretrained_model_path='./experiments/pretrained_models/lpips/weights/v0.1/alex.pth')
         self.lpips_fn = self.model_to_device(self.lpips_fn)
 
-        self.has_gt_model = False
         # load pre-trained HQ ckpt, frozen parts of network and finetune
         self.LQ_stage = self.opt['network_g'].get('LQ_stage', None) 
         self.latent_size = self.opt['network_g'].get('latent_size')
         if self.LQ_stage:
-            hq_ckpt_path = self.opt['network_g'].get('hq_path', None)
-            if hq_ckpt_path is not None:
-                self.has_gt_model = True
-                # load hq checkpoint for HQ net, frozen the whole model
-                self.net_hq = build_network(opt['network_g'])
-                self.net_hq = self.model_to_device(self.net_hq)
-                # self.print_network(self.net_hq)
-                self.load_network(self.net_hq, hq_ckpt_path,
-                            self.opt['path']['strict_load'])  
-                if isinstance(self.net_hq, torch.nn.DataParallel):
-                    self.net_hq.module.dist_func = 'l2'
-                    self.net_hq.module.LQ_stage = False 
-                else:
-                    self.net_hq.dist_func = 'l2'
-                    self.net_hq.LQ_stage = False 
-
-                for module in self.net_hq.modules():
-                    for p in module.parameters():
-                        p.requires_grad = False
-
-                # load hq checkpoint for LQ net initialization, frozen the codebook and the decoder  
-                self.load_network(self.net_g, hq_ckpt_path,
-                            self.opt['path']['strict_load']) 
-                #  frozen_module_keywords = ['quantize', 'decoder', 'before_quant_group', 'after_quant_group', 'out_conv']
             frozen_module_keywords = self.opt['network_g'].get('frozen_module_keywords', None) 
             if frozen_module_keywords is not None:
                 for name, module in self.net_g.named_modules():
@@ -77,7 +52,6 @@ class QuanTexSRGANModel(BaseModel):
                                 p.requires_grad = False
                             break
 
-        self.has_gt_model = False # to test dataset without GT
         # load pretrained models
         load_path = self.opt['path'].get('pretrain_network_g', None)
         resume_module_keywords = self.opt['network_g'].get('resume_module_keywords_g', None)
@@ -110,8 +84,6 @@ class QuanTexSRGANModel(BaseModel):
         logger = get_root_logger()
         train_opt = self.opt['train']
         self.net_g.train()
-        if hasattr(self, 'net_hq'):
-            self.net_hq.eval()
 
         # define network net_d
         self.net_d = build_network(self.opt['network_d'])
@@ -188,16 +160,10 @@ class QuanTexSRGANModel(BaseModel):
         self.optimizer_g.zero_grad()
 
         self.use_codebook_cls = self.opt['network_g'].get('use_codebook_cls', None) 
-        if self.LQ_stage is True:
-            if self.use_codebook_cls:
-                with torch.no_grad():
-                    self.gt_rec, _, _, gt_indices = self.net_hq(self.gt)
-                    self.gt_indices = gt_indices
-                self.output, l_ae, l_cls, _ = self.net_g(self.lq, gt_indices)
-            else:
-                outputs, l_ae, l_cls, _ = self.net_g(self.lq, gt_img=self.gt) 
-                self.output_l1 = outputs[0]
-                self.output = outputs[-1]
+        if self.LQ_stage:
+            outputs, l_ae, l_cls, _ = self.net_g(self.lq, gt_img=self.gt) 
+            self.output_l1 = outputs[0]
+            self.output = outputs[-1]
         else:
             outputs, l_ae, l_cls, _ = self.net_g(self.lq) 
             self.output = outputs[-1]
@@ -281,51 +247,15 @@ class QuanTexSRGANModel(BaseModel):
         org_use_sloss = net_g.use_semantic_loss 
         net_g.use_semantic_loss = False
         min_size = 8000 * 8000
-        with torch.no_grad():
-            #  lq_input = torch.nn.functional.interpolate(self.lq, scale_factor=1/2)
-            lq_input = self.lq
-            _, _, h, w = lq_input.shape
-            if h*w < min_size:
-                outputs, _, _, self.test_out_indices = self.net_g(lq_input)
-                self.output = outputs[-1] 
-                self.output_l1 = outputs[0]
-            else:
-                self.output = self.forward_chop(lq_input)
+        lq_input = self.lq
+        _, _, h, w = lq_input.shape
+        if h*w < min_size:
+            self.output = net_g.test(lq_input)
+        else:
+            self.output = net_g.test_tile(lq_input)
         self.net_g.train()
         net_g.use_semantic_loss = org_use_sloss 
-
-        #  if self.has_gt_model:
-            #  self.net_hq.eval()
-            #  with torch.no_grad():
-                #  self.gt_rec, _, _, self.gt_indices = self.net_hq(self.gt)
-
-    def forward_chop(self, lq_input):
-        div_sz = 512
-        shave = 16
-
-        lq_inputs = [
-                lq_input[..., 0:div_sz+shave, 0:div_sz+shave],
-                lq_input[..., 0:div_sz+shave, div_sz-shave:],
-                lq_input[..., div_sz-shave:, 0:div_sz+shave],
-                lq_input[..., div_sz-shave:, div_sz-shave:],
-                ]
-
-        chop_outputs = []
-        for lq in lq_inputs:
-            outputs, _, _, self.test_out_indices = self.net_g(lq)
-            output = outputs[-1] 
-            chop_outputs.append(output)
         
-        scale = self.opt['scale']
-        
-        up_half = torch.cat((chop_outputs[0][..., 0:div_sz*scale, 0:div_sz*scale],
-            chop_outputs[1][..., 0:div_sz*scale, shave*scale:]), dim=3)
-        down_half = torch.cat((chop_outputs[2][..., shave*scale:, 0:div_sz*scale],
-            chop_outputs[3][..., shave*scale:, shave*scale:]), dim=3)
-        y = torch.cat((up_half, down_half), dim=2)
-
-        return y 
-    
     def dist_validation(self, dataloader, current_iter, tb_logger, save_img, save_as_dir=None):
         logger = get_root_logger()
         logger.info('Only support single GPU validation.')

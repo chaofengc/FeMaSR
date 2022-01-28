@@ -27,7 +27,6 @@ def normalize_tensor(in_feat, eps=1e-10):
 class LPIPS(nn.Module):
 
     def __init__(self,
-                 pretrained=True,
                  net='alex',
                  version='0.1',
                  lpips=True,
@@ -35,6 +34,7 @@ class LPIPS(nn.Module):
                  pnet_rand=False,
                  pnet_tune=False,
                  use_dropout=True,
+                 pretrained=True,
                  pretrained_model_path=None,
                  eval_mode=True,
                  **kwargs):

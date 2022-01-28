@@ -224,7 +224,7 @@ class QuanTexSRNet(nn.Module):
         self.in_channel = in_channel
         self.gt_res = gt_resolution
         self.LQ_stage = LQ_stage
-        self.scale_factor = scale_factor
+        self.scale_factor = scale_factor if LQ_stage else 1
 
         channel_query_dict = {
                 8: 256,
@@ -413,7 +413,8 @@ class QuanTexSRNet(nn.Module):
     @torch.no_grad()
     def test(self, input):
 
-        input = self.content_model(input)
+        if self.LQ_stage:
+            input = self.content_model(input)
         dec, codebook_loss, cls_loss, indices = self.encode_and_decode(input) 
 
         return dec[-1]
