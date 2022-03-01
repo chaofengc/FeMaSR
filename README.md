@@ -1,7 +1,7 @@
 # QuanTexSR
 
 This is the official PyTorch codes for the paper  
-[Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior](https://arxiv.org/abs/)  
+[Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior](https://arxiv.org/abs/2202.13142)  
 [Chaofeng Chen\*](https://chaofengc.github.io), [Xinyu Shi\*](https://github.com/Xinyu-Shi), [Yipeng Qin](http://yipengqin.github.io/), [Xiaoming Li](https://csxmli2016.github.io/), [Xiaoguang Han](https://mypage.cuhk.edu.cn/academics/hanxiaoguang/), [Tao Yang](https://github.com/yangxy), [Shihui Guo](http://guoshihui.net/)   
 (\* indicates equal contribution)
 
@@ -96,11 +96,13 @@ python basicsr/train.py -opt options/train_QuanTexSR_HQ_pretrain_stage.yml
 
 ## Citation
 ```
-@inproceedings{ChenQuanTexSR,
-    author = {Chen, Chaofeng and Shi, Xinyu and Qin, Yipeng and Li, Xiaoming and Han, Xiaoguang and Yang, Tao and Guo, Shihui},
-    title = {Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior},
-    booktitle = {arxiv}
-    year = {2021}
+@misc{chen2022quantexsr,
+      author={Chaofeng Chen and Xinyu Shi and Yipeng Qin and Xiaoming Li and Xiaoguang Han and Tao Yang and Shihui Guo},
+      title={Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior}, 
+      year={2022},
+      eprint={2202.13142},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
 
