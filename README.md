@@ -7,6 +7,10 @@ This is the official PyTorch codes for the paper
 
 ![framework_img](framework_overview.png)
 
+### Update
+
+- **2022.03.02**: Add onedrive download link for pretrained weights.
+
 Here are some example results on test images from [BSRGAN](https://github.com/cszn/BSRGAN) and [RealESRGAN](https://github.com/xinntao/Real-ESRGAN).
 
 ---
@@ -47,7 +51,11 @@ python setup.py develop
 
 ## Quick Inference
 
-Download pretrained model from [BaiduNetdisk](https://pan.baidu.com/s/1H_9TIJUHEgAe75VToknbIA ), extract code `qtsr` (**only provide x4 model now**). Test the model with the following script
+Download pretrained model (**only provide x4 model now**) from
+- [BaiduNetdisk](https://pan.baidu.com/s/1H_9TIJUHEgAe75VToknbIA ), extract code `qtsr` . 
+- [OneDrive](https://entuedu-my.sharepoint.com/:f:/g/personal/chaofeng_chen_staff_main_ntu_edu_sg/EuqbHtP9-f9OjzLpyIftKH0Bp8WVlT-8FNX6-boTeqE47w)
+
+Test the model with the following script
 ```
 python inference_quantexsr.py -w ./path/to/model/weight -i ./path/to/test/image[or folder]
 ```
