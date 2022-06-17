@@ -43,6 +43,12 @@ def main():
     opt['n_thread'] = 20
     opt['compression_level'] = 3
 
+    opt['input_folder'] = '../../../datasets/SR_OST_datasets/OutdoorSceneTrain_v2/'
+    opt['save_folder'] = '../../../datasets/HQ_sub/OST_train_HR_sub/'
+    opt['crop_size'] = 320 
+    opt['step'] = 160 
+    opt['thresh_size'] = 0
+
     # HR images
     opt['input_folder'] = 'datasets/DIV2K/DIV2K_train_HR'
     opt['save_folder'] = 'datasets/DIV2K/DIV2K_train_HR_sub'
@@ -94,7 +100,7 @@ def extract_subimages(opt):
         print(f'Folder {save_folder} already exists. Exit.')
         sys.exit(1)
 
-    img_list = list(scandir(input_folder, full_path=True))
+    img_list = list(scandir(input_folder, recursive=True, full_path=True))
 
     pbar = tqdm(total=len(img_list), unit='image', desc='Extract')
     pool = Pool(opt['n_thread'])

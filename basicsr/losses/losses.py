@@ -5,13 +5,12 @@ from torch import nn as nn
 from torch.nn import functional as F
 
 from basicsr.archs.vgg_arch import VGGFeatureExtractor
-from basicsr.archs.lpips_arch import LPIPS 
 from basicsr.utils.registry import LOSS_REGISTRY
 from .loss_util import weighted_loss
 
-_reduction_modes = ['none', 'mean', 'sum']
+import pyiqa
 
-LPIPS_VGG_WEIGHT_PATH='./experiments/pretrained_models/lpips/weights/v0.1/vgg.pth'
+_reduction_modes = ['none', 'mean', 'sum']
 
 @weighted_loss
 def l1_loss(pred, target):
@@ -32,15 +31,10 @@ def charbonnier_loss(pred, target, eps=1e-12):
 class LPIPSLoss(nn.Module):
     """LPIPS loss with vgg backbone.
     """
-
     def __init__(self, loss_weight = 1.0):
         super(LPIPSLoss, self).__init__()
-        self.model = LPIPS(net='vgg', pretrained_model_path=LPIPS_VGG_WEIGHT_PATH)
-        self.model.eval()
+        self.model = pyiqa.create_metric('lpips-vgg', as_loss=True)
         self.loss_weight = loss_weight
-
-        for p in self.model.parameters():
-            p.requires_grad = False
 
     def forward(self, x, gt):
         return self.model(x, gt) * self.loss_weight, None
