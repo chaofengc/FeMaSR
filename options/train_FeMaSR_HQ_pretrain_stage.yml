@@ -1,5 +1,5 @@
 # general settings
-name: 003_FeMaSR_HQ_stage
+name: 004_FeMaSR_HQ_stage
 # name: debug_FeMaSR
 model_type: FeMaSRModel 
 scale: 4
@@ -56,8 +56,10 @@ network_d:
 
 # path
 path:
-  pretrain_network_g: ./experiments/pretrained_models/QuanTexSR/pretrain_semantic_vqgan_net_g_latest.pth 
+  # pretrain_network_g: ./experiments/pretrained_models/QuanTexSR/pretrain_semantic_vqgan_net_g_latest.pth 
   # pretrain_network_d: ~
+  pretrain_network_g: ./experiments/003_FeMaSR_HQ_stage/models/net_g_best_.pth
+  pretrain_network_d: ./experiments/003_FeMaSR_HQ_stage/models/net_d_best_.pth
   strict_load: false 
   # resume_state: ~
 
@@ -111,7 +113,7 @@ train:
 # validation settings·
 val:
   val_freq: !!float 5e3 
-  save_img: true
+  save_img: false 
 
   key_metric: lpips
   metrics:
