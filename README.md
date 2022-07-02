@@ -89,13 +89,11 @@ python basicsr/train.py -opt options/train_FeMaSR_HQ_pretrain_stage.yml
 
 ## Citation
 ```
-@misc{chen2022quantexsr,
+@inproceedings{chen2022femasr,
       author={Chaofeng Chen and Xinyu Shi and Yipeng Qin and Xiaoming Li and Xiaoguang Han and Tao Yang and Shihui Guo},
-      title={Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior}, 
+      title={Real-World Blind Super-Resolution via Feature Matching with Implicit High-Resolution Priors}, 
       year={2022},
-      eprint={2202.13142},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+      Journal = {ACM International Conference on Multimedia},
 }
 ```
 
