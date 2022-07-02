@@ -1,5 +1,5 @@
 # general settings
-name: 003_FeMaSR_LQ_stage
+name: 014_FeMaSR_LQ_stage
 # name: debug_FeMaSR
 model_type: FeMaSRModel 
 scale: &upscale 4
@@ -12,6 +12,9 @@ datasets:
     name: General_Image_Train
     type: BSRGANTrainDataset 
     dataroot_gt: ../datasets/HQ_sub
+    # type: PairedImageDataset  
+    # dataroot_gt: ../datasets/HQ_sub
+    # dataroot_lq: ../datasets/LQ_sub_X4
     io_backend:
       type: disk
  
@@ -57,9 +60,9 @@ network_d:
 
 # path
 path:
-  pretrain_network_hq: ./experiments/pretrained_models/QuanTexSR/pretrain_semantic_vqgan_net_g_latest.pth 
-  pretrain_network_g: ./experiments/0230_QSR_Semantic_RRDB_LQ_stage_X4/models/net_g_best_.pth 
-  pretrain_network_d:  ./experiments/0230_QSR_Semantic_RRDB_LQ_stage_X4/models/net_d_best_.pth 
+  pretrain_network_hq: ./experiments/008_FeMaSR_HQ_stage/models/net_g_best_.pth
+  pretrain_network_g: ~
+  pretrain_network_d: ./experiments/008_FeMaSR_HQ_stage/models/net_d_best_.pth
   strict_load: false 
   # resume_state: ~
 
@@ -72,7 +75,7 @@ train:
     betas: [0.9, 0.99]
   optim_d:
     type: Adam
-    lr: !!float 1e-4
+    lr: !!float 4e-4
     weight_decay: 0
     betas: [0.9, 0.99]
 

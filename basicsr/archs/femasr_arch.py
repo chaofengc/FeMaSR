@@ -87,6 +87,8 @@ class VectorQuantizer(nn.Module):
         q_latent_loss = torch.mean((z_q - z.detach())**2)
 
         if self.LQ_stage and gt_indices is not None:
+            # codebook_loss = self.dist(z_q, z_q_gt.detach()).mean() \
+                            # + self.beta * self.dist(z_q_gt.detach(), z) 
             codebook_loss = self.beta * self.dist(z_q_gt.detach(), z) 
             texture_loss = self.gram_loss(z, z_q_gt.detach()) 
             codebook_loss = codebook_loss + texture_loss 

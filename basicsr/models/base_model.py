@@ -206,7 +206,7 @@ class BaseModel():
             self._set_lr(warm_up_lr_l)
 
     def get_current_learning_rate(self):
-        return [param_group['lr'] for param_group in self.optimizers[0].param_groups]
+        return [optim.param_groups[0]['lr'] for optim in self.optimizers]
 
     @master_only
     def save_network(self, net, net_label, current_iter, param_key='params'):

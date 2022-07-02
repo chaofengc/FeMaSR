@@ -8,33 +8,11 @@ from basicsr.data.transforms import augment, paired_random_crop
 from basicsr.utils import FileClient, img2tensor
 from basicsr.utils.registry import DATASET_REGISTRY
 
-
-IMG_EXTENSIONS = [
-    '.jpg', '.JPG', '.jpeg', '.JPEG',
-    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
-    '.tif', '.TIF', '.tiff', '.TIFF',
-]
-
-
-def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
-
-
-def make_dataset(dir, max_dataset_size=float("inf")):
-    images = []
-    assert os.path.isdir(dir), '%s is not a valid directory' % dir
-
-    for root, _, fnames in sorted(os.walk(dir)):
-        for fname in fnames:
-            if is_image_file(fname):
-                path = os.path.join(root, fname)
-                images.append(path)
-    return images[:min(max_dataset_size, len(images))]
+from .data_util import make_dataset
 
 
 def random_resize(img, scale_factor=1.):
     return cv2.resize(img, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_CUBIC)
-
 
 @DATASET_REGISTRY.register()
 class PairedImageDataset(data.Dataset):

@@ -1,5 +1,5 @@
 # general settings
-name: 004_FeMaSR_HQ_stage
+name: 008_FeMaSR_HQ_stage
 # name: debug_FeMaSR
 model_type: FeMaSRModel 
 scale: 4
@@ -22,11 +22,12 @@ datasets:
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 2
-    batch_size_per_gpu: 12 
+    batch_size_per_gpu: &bsz 12 
+    num_worker_per_gpu: *bsz 
     dataset_enlarge_ratio: 1
 
-    prefetch_mode: ~
+    prefetch_mode: cpu
+    num_prefetch_queue: *bsz
 
   val:
     name: General_Image_Valid
@@ -58,8 +59,8 @@ network_d:
 path:
   # pretrain_network_g: ./experiments/pretrained_models/QuanTexSR/pretrain_semantic_vqgan_net_g_latest.pth 
   # pretrain_network_d: ~
-  pretrain_network_g: ./experiments/003_FeMaSR_HQ_stage/models/net_g_best_.pth
-  pretrain_network_d: ./experiments/003_FeMaSR_HQ_stage/models/net_d_best_.pth
+  pretrain_network_g: ./experiments/004_FeMaSR_HQ_stage/models/net_g_best_.pth
+  # pretrain_network_d: ./experiments/004_FeMaSR_HQ_stage/models/net_d_best_.pth
   strict_load: false 
   # resume_state: ~
 
@@ -117,7 +118,7 @@ val:
 
   key_metric: lpips
   metrics:
-    psnr: # metric name, can be arbitrary
+    psnr: # metric name, not used in this codebase 
       type: psnr 
       crop_border: 4
       test_y_channel: true

@@ -77,7 +77,6 @@ class FeMaSRModel(BaseModel):
         # define network net_d
         self.net_d = build_network(self.opt['network_d'])
         self.net_d = self.model_to_device(self.net_d)
-        # self.print_network(self.net_d)
         # load pretrained d models
         load_path = self.opt['path'].get('pretrain_network_d', None)
         # print(load_path)
@@ -118,23 +117,16 @@ class FeMaSRModel(BaseModel):
                 logger = get_root_logger()
                 logger.warning(f'Params {k} will not be optimized.')
 
+        # optimizer g
         optim_type = train_opt['optim_g'].pop('type')
-        if optim_type == 'Adam':
-            self.optimizer_g = torch.optim.Adam(optim_params,
-                                                **train_opt['optim_g'])
-        else:
-            raise NotImplementedError(
-                f'optimizer {optim_type} is not supperted yet.')
+        optim_class = getattr(torch.optim, optim_type)
+        self.optimizer_g = optim_class(optim_params, **train_opt['optim_g'])
         self.optimizers.append(self.optimizer_g)
 
         # optimizer d
         optim_type = train_opt['optim_d'].pop('type')
-        if optim_type == 'Adam':
-            self.optimizer_d = torch.optim.Adam(self.net_d.parameters(),
-                                                **train_opt['optim_d'])
-        else:
-            raise NotImplementedError(
-                f'optimizer {optim_type} is not supperted yet.')
+        optim_class = getattr(torch.optim, optim_type)
+        self.optimizer_d = optim_class(self.net_d.parameters(), **train_opt['optim_d'])
         self.optimizers.append(self.optimizer_d)
 
     def feed_data(self, data):

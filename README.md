@@ -1,7 +1,7 @@
-# QuanTexSR
+# FeMaSR 
 
 This is the official PyTorch codes for the paper  
-[Blind Image Super Resolution with Semantic-Aware Quantized Texture Prior](https://arxiv.org/abs/2202.13142)  
+[Real-World Blind Super-Resolution via Feature Matching with Implicit High-Resolution Priors](https://arxiv.org/abs/2202.13142)  
 [Chaofeng Chen\*](https://chaofengc.github.io), [Xinyu Shi\*](https://github.com/Xinyu-Shi), [Yipeng Qin](http://yipengqin.github.io/), [Xiaoming Li](https://csxmli2016.github.io/), [Xiaoguang Han](https://mypage.cuhk.edu.cn/academics/hanxiaoguang/), [Tao Yang](https://github.com/yangxy), [Shihui Guo](http://guoshihui.net/)   
 (\* indicates equal contribution)
 
@@ -9,7 +9,9 @@ This is the official PyTorch codes for the paper
 
 ### Update
 
-- **2022.03.02**: Add onedrive download link for pretrained weights.
+- **2022.07.02**  
+      - Update codes of the new version FeMaSR   
+      - Please find the old QuanTexSR in the `quantexsr` branch
 
 Here are some example results on test images from [BSRGAN](https://github.com/cszn/BSRGAN) and [RealESRGAN](https://github.com/xinntao/Real-ESRGAN).
 
@@ -37,12 +39,12 @@ Here are some example results on test images from [BSRGAN](https://github.com/cs
 - Other required packages in `requirements.txt`
 ```
 # git clone this repository
-git clone https://github.com/chaofengc/QuanTexSR.git
-cd QuanTexSR
+git clone https://github.com/chaofengc/FeMaSR.git
+cd FeMaSR 
 
 # create new anaconda env
-conda create -n quantexsr python=3.8
-source activate quantexsr
+conda create -n femasr python=3.8
+source activate femasr 
 
 # install python dependencies
 pip3 install -r requirements.txt
@@ -51,13 +53,9 @@ python setup.py develop
 
 ## Quick Inference
 
-Download pretrained model (**only provide x4 model now**) from
-- [BaiduNetdisk](https://pan.baidu.com/s/1H_9TIJUHEgAe75VToknbIA ), extract code `qtsr` . 
-- [OneDrive](https://entuedu-my.sharepoint.com/:f:/g/personal/chaofeng_chen_staff_main_ntu_edu_sg/EuqbHtP9-f9OjzLpyIftKH0Bp8WVlT-8FNX6-boTeqE47w)
-
-Test the model with the following script
 ```
-python inference_quantexsr.py -w ./path/to/model/weight -i ./path/to/test/image[or folder]
+python inference_quantexsr.py -s 4 -i ./testset -o results_x4/
+python inference_quantexsr.py -s 2 -i ./testset -o results_x2/
 ```
 
 ## Train the model
@@ -70,36 +68,23 @@ Please prepare the training and testing data follow descriptions in the main pap
 
 #### Model preparation
 
-Before training, you need to put the following pretrained models in `experiments/pretrained_models` and specify their path in the corresponding option file.
-
-- HQ pretrain stage: pretrained semantic cluster codebook
-- LQ stage (SR model training): pretrained semantic aware vqgan, pretrained PSNR oriented RRDB model
-- lpips weight for validation
-
-The above models can be downloaded from the BaiduNetDisk.
+Before training, you need to
+- Download the pretrained HRP model [here]() 
+- Put the pretrained models in `experiments/pretrained_models`
+- Specify their path in the corresponding option file.
 
 ### Train SR model
 
 ```
-python basicsr/train.py -opt options/train_QuanTexSR_LQ_stage.yml
+python basicsr/train.py -opt options/train_FeMaSR_LQ_stage.yml
 ```
 
 ### Model pretrain
 
-In case you want to pretrain your own VQGAN prior, we also provide the training instructions below.
-
-#### Pretrain semantic codebook
-
-The semantic-aware codebook is obtained with VGG19 features using a mini-batch version of K-means, optimized with Adam. This script will give three levels of codebooks from `relu3_4`, `relu4_4` and `relu5_4` features. We use `relu4_4` for this project.
+In case you want to pretrain your own HRP model, we also provide the training option file:
 
 ```
-python basicsr/train.py -opt options/train_QuanTexSR_semantic_cluster_stage.yml
-```
-
-#### Pretrain of semantic-aware VQGAN
-
-```
-python basicsr/train.py -opt options/train_QuanTexSR_HQ_pretrain_stage.yml
+python basicsr/train.py -opt options/train_FeMaSR_HQ_pretrain_stage.yml
 ```
 
 ## Citation

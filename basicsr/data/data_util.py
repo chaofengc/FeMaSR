@@ -1,11 +1,35 @@
 import cv2
 import numpy as np
 import torch
+import os
 from os import path as osp
 from torch.nn import functional as F
 
 from basicsr.data.transforms import mod_crop
 from basicsr.utils import img2tensor, scandir
+
+
+IMG_EXTENSIONS = [
+    '.jpg', '.JPG', '.jpeg', '.JPEG',
+    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
+    '.tif', '.TIF', '.tiff', '.TIFF',
+]
+
+
+def is_image_file(filename):
+    return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
+
+
+def make_dataset(dir, max_dataset_size=float("inf"), followlinks=True):
+    images = []
+    assert os.path.isdir(dir), '%s is not a valid directory' % dir
+
+    for root, _, fnames in sorted(os.walk(dir, followlinks=followlinks)):
+        for fname in fnames:
+            if is_image_file(fname):
+                path = os.path.join(root, fname)
+                images.append(path)
+    return images[:min(max_dataset_size, len(images))]
 
 
 def read_img_seq(path, require_mod_crop=False, scale=1, return_imgname=False):
