@@ -54,8 +54,8 @@ python setup.py develop
 ## Quick Inference
 
 ```
-python inference_quantexsr.py -s 4 -i ./testset -o results_x4/
-python inference_quantexsr.py -s 2 -i ./testset -o results_x2/
+python inference_femasr.py -s 4 -i ./testset -o results_x4/
+python inference_femasr.py -s 2 -i ./testset -o results_x2/
 ```
 
 ## Train the model
@@ -69,7 +69,7 @@ Please prepare the training and testing data follow descriptions in the main pap
 #### Model preparation
 
 Before training, you need to
-- Download the pretrained HRP model [here]() 
+- Download the pretrained HRP model: [generator](https://github.com/chaofengc/FeMaSR/releases/download/v0.1-pretrain_models/FeMaSR_HRP_model_g.pth), [discriminator](https://github.com/chaofengc/FeMaSR/releases/download/v0.1-pretrain_models/FeMaSR_HRP_model_d.pth) 
 - Put the pretrained models in `experiments/pretrained_models`
 - Specify their path in the corresponding option file.
 
