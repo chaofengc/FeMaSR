@@ -19,11 +19,11 @@ Here are some example results on test images from [BSRGAN](https://github.com/cs
 
 **Left**: [real images](./testset) **|** **Right**: [super-resolved images with scale factor 4](./results)
 
-<img src="testset/butterfly.png" width="390px"/> <img src="results/butterfly.png" width="390px"/>
-<img src="testset/0003.jpg" width="390px"/> <img src="results/0003.jpg" width="390px"/>
-<img src="testset/00003.png" width="390px"/> <img src="results/00003.png" width="390px"/>
-<img src="testset/Lincoln.png" width="390px"/> <img src="results/Lincoln.png" width="390px"/>
-<img src="testset/0014.jpg" width="390px"/> <img src="results/0014.jpg" width="390px"/>
+<img src="testset/butterfly.png" width="390px"/> <img src="results_x4/butterfly.png" width="390px"/>
+<img src="testset/0003.jpg" width="390px"/> <img src="results_x4/0003.jpg" width="390px"/>
+<img src="testset/00003.png" width="390px"/> <img src="results_x4/00003.png" width="390px"/>
+<img src="testset/Lincoln.png" width="390px"/> <img src="results_x4/Lincoln.png" width="390px"/>
+<img src="testset/0014.jpg" width="390px"/> <img src="results_x4/0014.jpg" width="390px"/>
 
 <!-- <img src="testset/butterfly.png" width="156"/> <img src="results/butterfly.png" width="624px"/>
 <img src="testset/0003.jpg" width="156px"/> <img src="results/0003.jpg" width="624px"/>
