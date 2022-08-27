@@ -6,6 +6,7 @@ experiments/*
 tb_logger*/*
 wandb/*
 tmp*/*
+tmp*
 *.sh
 .vscode*
 .github

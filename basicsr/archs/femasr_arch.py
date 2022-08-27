@@ -32,10 +32,7 @@ class VectorQuantizer(nn.Module):
         self.embedding = nn.Embedding(self.n_e, self.e_dim)
     
     def dist(self, x, y):
-        if x.shape == y.shape:
-            return (x - y) ** 2
-        else:
-            return torch.sum(x ** 2, dim=1, keepdim=True) + \
+        return torch.sum(x ** 2, dim=1, keepdim=True) + \
                     torch.sum(y**2, dim=1) - 2 * \
                     torch.matmul(x, y.t())
     
@@ -87,9 +84,7 @@ class VectorQuantizer(nn.Module):
         q_latent_loss = torch.mean((z_q - z.detach())**2)
 
         if self.LQ_stage and gt_indices is not None:
-            # codebook_loss = self.dist(z_q, z_q_gt.detach()).mean() \
-                            # + self.beta * self.dist(z_q_gt.detach(), z) 
-            codebook_loss = self.beta * self.dist(z_q_gt.detach(), z) 
+            codebook_loss = self.beta * ((z_q_gt.detach() - z) ** 2).mean() 
             texture_loss = self.gram_loss(z, z_q_gt.detach()) 
             codebook_loss = codebook_loss + texture_loss 
         else:
