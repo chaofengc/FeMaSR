@@ -5,10 +5,16 @@ This is the official PyTorch codes for the paper
 [Chaofeng Chen\*](https://chaofengc.github.io), [Xinyu Shi\*](https://github.com/Xinyu-Shi), [Yipeng Qin](http://yipengqin.github.io/), [Xiaoming Li](https://csxmli2016.github.io/), [Xiaoguang Han](https://mypage.cuhk.edu.cn/academics/hanxiaoguang/), [Tao Yang](https://github.com/yangxy), [Shihui Guo](http://guoshihui.net/)   
 (\* indicates equal contribution)
 
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2202.13142)
+<a href="https://colab.research.google.com/drive/1Yzb4o5OKjK46jbQ-_HGFOVJOPMVtJQjw?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a> 
+![visitors](https://visitor-badge.glitch.me/badge?page_id=chaofengc/FeMaSR)
+[![LICENSE](https://img.shields.io/badge/LICENSE-CC%20BY--NC--SA%204.0-green)](https://github.com/chaofengc/FeMaSR/blob/main/LICENSE)
+
 ![framework_img](framework_overview.png)
 
 ### Update
 
+- **2022.09.23** Add colab demo  
 - **2022.07.02**  
       - Update codes of the new version FeMaSR   
       - Please find the old QuanTexSR in the `quantexsr` branch
