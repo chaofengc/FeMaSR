@@ -1,7 +1,7 @@
 # FeMaSR 
 
 This is the official PyTorch codes for the paper  
-[Real-World Blind Super-Resolution via Feature Matching with Implicit High-Resolution Priors](https://arxiv.org/abs/2202.13142)  
+[Real-World Blind Super-Resolution via Feature Matching with Implicit High-Resolution Priors (MM22 Oral)](https://arxiv.org/abs/2202.13142)  
 [Chaofeng Chen\*](https://chaofengc.github.io), [Xinyu Shi\*](https://github.com/Xinyu-Shi), [Yipeng Qin](http://yipengqin.github.io/), [Xiaoming Li](https://csxmli2016.github.io/), [Xiaoguang Han](https://mypage.cuhk.edu.cn/academics/hanxiaoguang/), [Tao Yang](https://github.com/yangxy), [Shihui Guo](http://guoshihui.net/)   
 (\* indicates equal contribution)
 
@@ -14,7 +14,7 @@ This is the official PyTorch codes for the paper
 
 ### Update
 
-- **2022.09.23** Add colab demo  
+- **2022.09.23** Add colab demo <a href="https://colab.research.google.com/drive/1Yzb4o5OKjK46jbQ-_HGFOVJOPMVtJQjw?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a>  
 - **2022.07.02**  
       - Update codes of the new version FeMaSR   
       - Please find the old QuanTexSR in the `quantexsr` branch
