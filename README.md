@@ -7,6 +7,7 @@ This is the official PyTorch codes for the paper
 
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2202.13142)
 <a href="https://colab.research.google.com/drive/1Yzb4o5OKjK46jbQ-_HGFOVJOPMVtJQjw?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a> 
+[![wandb](https://img.shields.io/badge/Weights_&_Biases-FFBE00?&logo=WeightsAndBiases&logoColor=white)](https://wandb.ai/chaofeng/FeMaSR?workspace=user-chaofeng)
 ![visitors](https://visitor-badge.glitch.me/badge?page_id=chaofengc/FeMaSR)
 [![LICENSE](https://img.shields.io/badge/LICENSE-CC%20BY--NC--SA%204.0-green)](https://github.com/chaofengc/FeMaSR/blob/main/LICENSE)
 
@@ -14,6 +15,7 @@ This is the official PyTorch codes for the paper
 
 ### Update
 
+- **2022.09.26** Add example training log with 70k iterations [![wandb](https://img.shields.io/badge/Weights_&_Biases-FFBE00?&logo=WeightsAndBiases&logoColor=white)](https://wandb.ai/chaofeng/FeMaSR?workspace=user-chaofeng)
 - **2022.09.23** Add colab demo <a href="https://colab.research.google.com/drive/1Yzb4o5OKjK46jbQ-_HGFOVJOPMVtJQjw?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a>  
 - **2022.07.02**  
       - Update codes of the new version FeMaSR   

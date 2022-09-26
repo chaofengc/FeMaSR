@@ -30,6 +30,7 @@ class VectorQuantizer(nn.Module):
         self.LQ_stage = LQ_stage
         self.beta = beta 
         self.embedding = nn.Embedding(self.n_e, self.e_dim)
+        self.embedding.weight.data.uniform_(-1.0 / self.n_e, 1.0 / self.n_e)
     
     def dist(self, x, y):
         return torch.sum(x ** 2, dim=1, keepdim=True) + \

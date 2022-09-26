@@ -22,7 +22,7 @@ datasets:
 
     # data loader
     use_shuffle: true
-    batch_size_per_gpu: &bsz 12 
+    batch_size_per_gpu: &bsz 8 
     num_worker_per_gpu: *bsz 
     dataset_enlarge_ratio: 1
 
@@ -59,7 +59,7 @@ network_d:
 path:
   # pretrain_network_g: ./experiments/pretrained_models/QuanTexSR/pretrain_semantic_vqgan_net_g_latest.pth 
   # pretrain_network_d: ~
-  pretrain_network_g: ./experiments/004_FeMaSR_HQ_stage/models/net_g_best_.pth
+  # pretrain_network_g: ./experiments/004_FeMaSR_HQ_stage/models/net_g_best_.pth
   # pretrain_network_d: ./experiments/004_FeMaSR_HQ_stage/models/net_d_best_.pth
   strict_load: false 
   # resume_state: ~
