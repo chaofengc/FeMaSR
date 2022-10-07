@@ -8,7 +8,7 @@ from torch.nn.parallel import DataParallel, DistributedDataParallel
 from basicsr.models import lr_scheduler as lr_scheduler
 from basicsr.utils import get_root_logger
 from basicsr.utils.dist_util import master_only
-
+from basicsr.utils.download_util import load_file_from_url
 
 class BaseModel():
     """Base model."""
@@ -301,6 +301,10 @@ class BaseModel():
                 None, use the root 'path'.
                 Default: 'params'.
         """
+        if load_path.startswith('https://'):
+            pretrain_model_dir = os.path.join(self.opt['root_path'], 'experiments/pretrained_models')
+            load_path = load_file_from_url(load_path, model_dir=pretrain_model_dir)
+
         logger = get_root_logger()
         net = self.get_bare_model(net)
         load_net = torch.load(load_path, map_location=lambda storage, loc: storage)

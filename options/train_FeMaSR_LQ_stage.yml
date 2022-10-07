@@ -1,5 +1,5 @@
 # general settings
-name: 014_FeMaSR_LQ_stage
+name: 015_FeMaSR_LQ_stage
 # name: debug_FeMaSR
 model_type: FeMaSRModel 
 scale: &upscale 4
@@ -10,11 +10,11 @@ manual_seed: 0
 datasets:
   train:
     name: General_Image_Train
-    type: BSRGANTrainDataset 
-    dataroot_gt: ../datasets/HQ_sub
-    # type: PairedImageDataset  
+    # type: BSRGANTrainDataset 
     # dataroot_gt: ../datasets/HQ_sub
-    # dataroot_lq: ../datasets/LQ_sub_X4
+    type: PairedImageDataset  
+    dataroot_gt: ../datasets/HQ_sub
+    dataroot_lq: ../datasets/LQ_sub_X4
     io_backend:
       type: disk
  
@@ -60,9 +60,9 @@ network_d:
 
 # path
 path:
-  pretrain_network_hq: ./experiments/008_FeMaSR_HQ_stage/models/net_g_best_.pth
+  pretrain_network_hq: https://github.com/chaofengc/FeMaSR/releases/download/v0.1-pretrain_models/FeMaSR_HRP_model_g.pth 
   pretrain_network_g: ~
-  pretrain_network_d: ./experiments/008_FeMaSR_HQ_stage/models/net_d_best_.pth
+  pretrain_network_d: https://github.com/chaofengc/FeMaSR/releases/download/v0.1-pretrain_models/FeMaSR_HRP_model_d.pth
   strict_load: false 
   # resume_state: ~
 
@@ -147,6 +147,9 @@ logger:
     # resume_id: ~
 
 # dist training settings
-# dist_params:
-  # backend: nccl
-  # port: 16500 #29500
+dist_params:
+  backend: nccl
+  port: 16500 #29500
+
+find_unused_parameters: true
+

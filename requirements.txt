@@ -13,5 +13,5 @@ torch>=1.7
 torchvision
 tqdm
 yapf
-pyiqa
+pyiqa>=0.1.4
 einops
