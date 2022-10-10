@@ -15,6 +15,7 @@ This is the official PyTorch codes for the paper
 
 ### Update
 
+- **2022.10.10** Release reproduce training log for SR stage in [![wandb](https://img.shields.io/badge/Weights_&_Biases-FFBE00?&logo=WeightsAndBiases&logoColor=white)](https://wandb.ai/chaofeng/FeMaSR?workspace=user-chaofeng). Reach similar performance as the paper, `LPIPS: 0.329 @415k` for div2k (x4).
 - **2022.09.26** Add example training log with 70k iterations [![wandb](https://img.shields.io/badge/Weights_&_Biases-FFBE00?&logo=WeightsAndBiases&logoColor=white)](https://wandb.ai/chaofeng/FeMaSR?workspace=user-chaofeng)
 - **2022.09.23** Add colab demo <a href="https://colab.research.google.com/drive/1Yzb4o5OKjK46jbQ-_HGFOVJOPMVtJQjw?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="google colab logo"></a>  
 - **2022.07.02**  
