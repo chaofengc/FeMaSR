@@ -33,7 +33,7 @@ def main():
     if args.weight is None:
         weight_path = load_file_from_url(pretrain_model_url[f'x{args.out_scale}'])
     else:
-        weight_path = args.w
+        weight_path = args.weight
     
     # set up the model
     sr_model = FeMaSRNet(codebook_params=[[32, 1024, 512]], LQ_stage=True, scale_factor=args.out_scale).to(device)
